@@ -214,6 +214,33 @@ degrees, so no plausible edit can flip a stop the long way round). Writing it
 immediately surfaced a second instance of the same bug in `dawn -> morning`,
 one twenty-degree edit away from breaking the same way.
 
+### How the sky is actually modelled
+
+The first version painted the whole gradient orange at golden hour, which is why
+it looked like Mars rather than like evening. Real skies do not work that way:
+**the zenith stays blue all day and only the horizon swings warm.**
+
+So the three gradient stops have three different jobs.
+
+| Stop | Role | Behaviour |
+|---|---|---|
+| `bgTop` | the zenith | Blue family from dawn to dusk. Hue barely moves; only lightness and chroma do. |
+| `bgMid` | the band the digits sit in | Moderate, and darkened further by the scrim. |
+| `bgBottom` | the horizon | Where the warmth lives — orange at dawn and golden hour, magenta at dusk, and a near-neutral pale haze through the middle of the day. |
+
+That last cell is structural, not decorative. Rotating a *saturated* horizon from
+orange to blue has to cross either green or magenta; letting its chroma fall to
+almost nothing in the middle of the day means it crosses neither, and the hue it
+passes through stops mattering.
+
+One more thing worth stating, because the fix was a deletion. The scene used to
+have exponential fog. The digit block is the only fogged object in it — the sky,
+the motes and the chips are all unlit or custom shaders — so at a fixed camera
+distance the fog was not atmosphere at all. It was a constant blend of the
+glyphs toward the sky colour, eating 40% of them at night. Removing it lifted
+the worst rendered contrast in the day from 4.71:1 to 6.63:1 and deleted a
+uniform, two palette fields and a shader branch.
+
 ---
 
 ## Accessibility
@@ -336,6 +363,16 @@ Useful while developing: `?tier=low` forces the low quality tier, and
 - **The seconds indicator is a straight track, not an arc.** It was planned as
   an arc; at the proportions this layout produces, a bow subtle enough not to
   collide with the date line is also too subtle to read as a curve.
+- **Seconds update without a React render.** They are written straight into two
+  `textContent` slots on the clock tick. Letting `useDisplayTime` run at second
+  granularity would have re-rendered the tree sixty times a minute and thrown
+  away the render budget the whole architecture is built around.
+- **Seconds do not roll.** The hour and minute slots spring when they change; a
+  spring landing sixty times a minute stops reading as a moment and starts
+  reading as a flicker.
+- **There is no seconds progress track any more.** There was one, and it was
+  good, but once the seconds are spelled out in digits a bar showing the same
+  thing is a second indicator for the same fact.
 - **The panel shift is computed from measured geometry**, not breakpoints,
   because the block's width depends on a `clamp()` against both viewport axes,
   the format, and whether AM/PM is present.
