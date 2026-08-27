@@ -1,0 +1,80 @@
+.shell {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  /* The canvas underneath must keep receiving pointer events for parallax;
+     only the actual controls opt back in. */
+  pointer-events: none;
+  padding: var(--inset);
+  padding-top: max(var(--inset), env(safe-area-inset-top, 0px));
+  padding-bottom: max(var(--inset), env(safe-area-inset-bottom, 0px));
+}
+
+.shell button,
+.shell input,
+.shell [role='radiogroup'],
+.shell .chip {
+  pointer-events: auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+/*
+ * Optical centre, not mathematical centre. A block centred at exactly 50% reads
+ * as sitting low; 46% is where it looks centred.
+ */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  /* --stage-shift is computed from the measured block; see usePanelShift. */
+  transform: translate(calc(-50% - var(--stage-shift, 0px)), -50%);
+  transition: transform var(--dur-panel) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(var(--s-4), 3vh, var(--s-12));
+  width: 100%;
+  padding: 0 var(--inset);
+}
+
+/* Landscape phones: a width-only rule would size the digits to 80% of a wide
+   viewport and overflow vertically. Pull the block up and tighten the gap. */
+@media (max-height: 500px) and (min-aspect-ratio: 16/10) {
+  .stage {
+    top: 50%;
+    gap: var(--s-3);
+  }
+}
+
+.info {
+  position: absolute;
+  right: var(--inset);
+  bottom: max(var(--inset), env(safe-area-inset-bottom, 0px));
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  color: var(--fg);
+  opacity: 0.66;
+  cursor: pointer;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.info:hover { opacity: 1; }
+.info:active { transform: scale(0.94); }
+
+@media (pointer: coarse) {
+  .info { width: 44px; height: 44px; opacity: 1; }
+}

@@ -1,0 +1,10 @@
+.date {
+  margin: 0;
+  font-size: var(--text-date);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--fg-muted);
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}

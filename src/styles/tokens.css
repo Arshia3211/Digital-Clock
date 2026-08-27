@@ -1,0 +1,85 @@
+/*
+ * The design system, as tokens.
+ *
+ * Colour is NOT here — it is written onto :root at runtime by applyCssVars,
+ * from the same palette struct the WebGL scene reads. What lives here is
+ * everything that does not change with the time of day: scale, rhythm, shape.
+ *
+ * The discipline is the point: one type family, three radii, one shadow, an
+ * 8px spacing grid. If a value in a component is not from this file, it should
+ * be possible to say why in one sentence.
+ */
+
+:root {
+  /* Type — a 1.25 major third, plus fluid sizes for the two hero elements. */
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-2xs: 0.6875rem; /* 11px — the mark, keyboard hints */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px — control labels */
+  --text-base: 0.9375rem;/* 15px — panel body */
+  --text-lg: 1.1875rem;  /* 19px */
+
+  /* Sized against BOTH viewport axes, so a landscape phone does not blow past
+     the vertical space. Retuned when seconds went in: the block grew from five
+     cells to eight — about 4.3em wide in 12-hour mode — so the same fraction of
+     the viewport needs a smaller em. The vh term is what binds on a laptop and
+     the vw term on a phone; the max stops it from becoming a wall of type on a
+     large monitor. */
+  --text-clock: clamp(2.5rem, min(18.5vw, 20vh), 13rem);
+  --text-date: clamp(0.8125rem, min(3.4vw, 2.2vh), 1.0625rem);
+
+  /* Shape */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-full: 999px;
+
+  /* Space — 8px grid with a 4px half-step for optical adjustment only. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* Viewport inset, by breakpoint. */
+  --inset: 20px;
+
+  /* One shadow. Not a stack. */
+  --shadow-panel: 0 16px 48px -12px rgb(0 0 0 / 0.28);
+
+  /* Motion — every duration in the project comes from these five values. */
+  --dur-press: 80ms;
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-panel: 260ms;
+  --dur-reveal: 600ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+  /* Night, so the first paint is never a white flash before the engine runs. */
+  --bg-top: rgb(15 15 26);
+  --bg-mid: rgb(29 29 45);
+  --bg-bottom: rgb(43 42 61);
+  --fg: rgb(246 245 250);
+  --fg-muted: rgb(199 197 210);
+  --accent: rgb(190 186 240);
+  --digit: rgb(237 236 245);
+  --surface: rgb(75 73 95 / 0.3);
+  --surface-strong: rgb(75 73 95 / 0.52);
+  --hairline: rgb(246 245 250 / 0.14);
+  --halo: 0.1;
+  --selected: rgb(246 245 250 / 0.16);
+  --selected-edge: rgb(246 245 250 / 0.26);
+  --sun-x: 61%;
+  --sun-y: 98%;
+  --sun-color: rgb(120 118 160 / 0.03);
+}
+
+@media (min-width: 768px) {
+  :root { --inset: 32px; }
+}
+@media (min-width: 1600px) {
+  :root { --inset: 40px; }
+}

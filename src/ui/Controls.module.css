@@ -1,0 +1,35 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+/* Faded, never hidden. A control you cannot see is a control you cannot find. */
+.idle { opacity: 0.34; }
+
+@media (pointer: coarse) {
+  /* No hover to bring them back, so they never fade on touch. */
+  .idle { opacity: 1; }
+}
+
+.segmented {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  isolation: isolate;
+}
+
+.indicator {
+  position: absolute;
+  inset: 0 50% 0 0;
+  border-radius: var(--r-full);
+  background: var(--selected);
+  box-shadow: inset 0 0 0 1px var(--selected-edge);
+  transition: transform var(--dur-base) var(--ease-out);
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator { transition: none; }
+}

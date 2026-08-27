@@ -1,0 +1,58 @@
+/*
+ * Outfit has no tabular figures — "0" advances 666 units and "1" only 378. Left
+ * alone, the layout would twitch sideways every time a 1 appeared. Each digit
+ * therefore gets a fixed cell and is centred inside it. The 3D digit slots use
+ * the same pitch for the same reason.
+ */
+
+.face {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  font-size: var(--text-clock);
+  font-weight: 700;
+  line-height: 1.05;
+  /* Big type needs negative tracking; default spacing at this size reads loose. */
+  letter-spacing: -0.03em;
+  color: var(--digit);
+  transition: opacity var(--dur-reveal) var(--ease-out);
+  user-select: none;
+}
+
+.digit {
+  display: inline-block;
+  width: 0.66em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.colon {
+  display: inline-block;
+  width: 0.3em;
+  text-align: center;
+  /* Optical: the colon sits high in the em box and reads as misaligned unless
+     nudged down against digits this large. */
+  transform: translateY(-0.03em);
+}
+
+.period {
+  font-size: 0.22em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin-left: 0.34em;
+  align-self: baseline;
+  opacity: 0.85;
+}
+
+.pulse {
+  animation: colon-pulse 1s steps(1, end) infinite;
+}
+
+@keyframes colon-pulse {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0.32; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse { animation: none; opacity: 1; }
+}

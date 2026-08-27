@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>TICK — a clock whose world tracks the sun</title>
+    <meta
+      name="description"
+      content="A real-time clock whose colour, light and atmosphere are derived from the current time of day."
+    />
+    <meta name="theme-color" content="#1d1d2d" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <style>
+      /* Painted before any JavaScript runs, so the first frame is never a white
+         flash. The real palette takes over within a frame of the module loading. */
+      html, body { margin: 0; background: #1d1d2d; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="color: #f6f5fa; font-family: system-ui; padding: 2rem">
+        TICK needs JavaScript to read your device's clock.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
