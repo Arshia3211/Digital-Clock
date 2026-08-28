@@ -9,6 +9,7 @@ import './styles/global.css'
 import App from './app/App'
 import { startClock } from './features/time'
 import { startPaletteEngine } from './features/theme/paletteEngine'
+import { warmZoneOffsets } from './features/time/zones'
 
 // Started at module scope rather than in an effect: these are singletons that
 // should run for the life of the document, and StrictMode's deliberate
@@ -16,6 +17,10 @@ import { startPaletteEngine } from './features/theme/paletteEngine'
 // development reload.
 startClock()
 startPaletteEngine()
+
+// Fill the timezone offset cache during idle time, so opening the picker is
+// instant rather than spending a second constructing 418 Intl formatters.
+warmZoneOffsets()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

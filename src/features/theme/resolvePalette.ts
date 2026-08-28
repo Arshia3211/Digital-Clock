@@ -1,5 +1,6 @@
 import type { Palette, ThemeMode } from '@/types'
 import { mixOklch } from '@/lib/color'
+import type { Oklch } from '@/lib/color'
 import { lerp, lerpAngle, smoothstep } from '@/lib/clamp'
 import { PINNED_DARK, PINNED_LIGHT, RAMP } from './palettes'
 
@@ -87,4 +88,35 @@ export function resolvePalette(hours: number, mode: ThemeMode, blend = 1): Palet
   if (mode === 'auto' || blend <= 0) return ramp
   const pinned = mode === 'dark' ? PINNED_DARK : PINNED_LIGHT
   return blend >= 1 ? pinned : mixPalette(ramp, pinned, blend)
+}
+
+/**
+ * Just the three sky stops at a given hour.
+ *
+ * `rampAt` interpolates twenty-six fields — light angles, intensities, particle
+ * speeds — all of which are wasted work when the caller only wants to paint a
+ * 38x26 pixel gradient. The zone picker draws one of these per row and
+ * re-renders every second, so the difference is worth a second function.
+ */
+export function skyAt(hours: number): { top: Oklch; mid: Oklch; bottom: Oklch } {
+  const h = ((hours % DAY) + DAY) % DAY
+
+  let i = RAMP.length - 1
+  for (let k = 0; k < RAMP.length; k++) {
+    if (RAMP[k].at > h) {
+      i = (k - 1 + RAMP.length) % RAMP.length
+      break
+    }
+  }
+
+  const a = RAMP[i]
+  const b = RAMP[(i + 1) % RAMP.length]
+  const span = (b.at - a.at + DAY) % DAY || DAY
+  const t = smoothstep(((h - a.at + DAY) % DAY) / span)
+
+  return {
+    top: mixOklch(a.bgTop, b.bgTop, t, CHROMA_DIP),
+    mid: mixOklch(a.bgMid, b.bgMid, t, CHROMA_DIP),
+    bottom: mixOklch(a.bgBottom, b.bgBottom, t, CHROMA_DIP),
+  }
 }

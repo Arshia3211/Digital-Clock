@@ -78,6 +78,12 @@ export function InfoPanel({ open, onClose, asSheet }: Props) {
           midday is bright and flat; the evening light rakes in low and warm.
         </p>
 
+        <p className={styles.body}>
+          The timezone control changes the whole world and not just the numbers.
+          Pick Tokyo from a London morning and you get Tokyo{'’'}s dusk — the sky,
+          the angle of the light, the colour of the digits.
+        </p>
+
         <DayScrubber />
 
         <dl className={styles.meta}>
@@ -88,8 +94,8 @@ export function InfoPanel({ open, onClose, asSheet }: Props) {
           <div>
             <dt>Keyboard</dt>
             <dd>
-              <kbd>F</kbd> format · <kbd>T</kbd> theme · <kbd>M</kbd> motion ·{' '}
-              <kbd>I</kbd> this panel · <kbd>Esc</kbd> close
+              <kbd>F</kbd> format · <kbd>T</kbd> theme · <kbd>Z</kbd> timezone ·{' '}
+              <kbd>M</kbd> motion · <kbd>I</kbd> this panel · <kbd>Esc</kbd> close
             </dd>
           </div>
         </dl>

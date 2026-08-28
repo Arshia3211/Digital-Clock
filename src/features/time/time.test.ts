@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { formatTime, isoInZone, zoneOffsetMs } from './formatTime'
-import { DAY_MS, phaseAt, timeOfDayFrom } from './timeOfDay'
 import { createBoundaryScheduler } from './scheduler'
 
 const utc = (...a: [number, number, number?, number?, number?, number?, number?]) =>
@@ -74,29 +73,6 @@ describe('timezone offsets via Intl', () => {
     expect(isoInZone(utc(2025, 0, 15, 12, 0, 0), 'UTC')).toBe('2025-01-15T12:00:00Z')
     expect(isoInZone(utc(2025, 0, 15, 12, 0, 0), 'Asia/Kolkata')).toBe('2025-01-15T17:30:00+05:30')
     expect(isoInZone(utc(2025, 0, 15, 12, 0, 0), 'America/New_York')).toBe('2025-01-15T07:00:00-05:00')
-  })
-})
-
-describe('time of day', () => {
-  it('wraps at midnight without a discontinuity in position', () => {
-    expect(timeOfDayFrom(0)).toBe(0)
-    expect(timeOfDayFrom(DAY_MS - 1)).toBeCloseTo(1, 4)
-    expect(timeOfDayFrom(DAY_MS)).toBe(0)
-  })
-
-  it('handles negative local times (zones west of UTC before the epoch)', () => {
-    expect(timeOfDayFrom(-1)).toBeCloseTo(1, 4)
-    expect(timeOfDayFrom(-DAY_MS / 2)).toBeCloseTo(0.5, 6)
-  })
-
-  it('names phases at their boundaries', () => {
-    expect(phaseAt(0)).toBe('night')
-    expect(phaseAt(5)).toBe('dawn')
-    expect(phaseAt(9)).toBe('morning')
-    expect(phaseAt(13)).toBe('midday')
-    expect(phaseAt(18)).toBe('golden')
-    expect(phaseAt(21)).toBe('dusk')
-    expect(phaseAt(23.5)).toBe('night')
   })
 })
 

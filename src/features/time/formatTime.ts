@@ -77,11 +77,11 @@ export function formatTime(ms: number, o: FormatOptions): TimeParts {
   const hour = hour12 ? rawHour.replace(/^0/, ' ') : rawHour.padStart(2, '0')
 
   const dateLong = fmt(`d:${timeZone}`, {
-    timeZone, weekday: 'long', day: 'numeric', month: 'long',
+    timeZone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   }, locale).format(d)
 
   const dateShort = fmt(`ds:${timeZone}`, {
-    timeZone, weekday: 'short', day: 'numeric', month: 'short',
+    timeZone, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
   }, locale).format(d)
 
   const spokenTime = fmt(`sp:${tag}`, {

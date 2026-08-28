@@ -1,12 +1,13 @@
 import { createBoundaryScheduler } from './scheduler'
-import { systemTimeZone, zoneOffsetMs } from './formatTime'
+import { systemTimeZone } from './formatTime'
 
 /**
  * The clock engine.
  *
  * There is exactly one number of truth in this application: a UTC timestamp.
  * Everything else — digits, date, sky colour, sun angle — is derived at the
- * point of use.
+ * point of use, and derived through `Intl` with the selected IANA zone. The
+ * engine holds no offset and does no timezone arithmetic of its own.
  *
  * Two consumers, two very different cadences, and keeping them apart is the
  * whole architecture:
@@ -22,10 +23,16 @@ type Listener = () => void
 
 let offsetMs = 0 // server-time correction; 0 until/unless calibrated
 let timeZone = systemTimeZone()
-let zoneOffset = zoneOffsetMs(timeZone, Date.now())
 
-// "Which displayed minute is this" — zone-shifted so every code path agrees.
-let minuteIndex = Math.floor((Date.now() + offsetMs + zoneOffset) / 60000)
+/**
+ * Which minute is being displayed.
+ *
+ * Measured in UTC on purpose. Every current IANA offset is a whole number of
+ * minutes, so the displayed minute changes at exactly the same instant in every
+ * zone — which makes this a correct change-detector without the store needing
+ * to know or care which zone is selected.
+ */
+let minuteIndex = Math.floor((Date.now() + offsetMs) / 60000)
 
 const tickListeners = new Set<Listener>()
 const resyncListeners = new Set<Listener>()
@@ -33,46 +40,30 @@ const resyncListeners = new Set<Listener>()
 /** Authoritative current instant, in UTC milliseconds. */
 export const now = () => Date.now() + offsetMs
 
-/**
- * Current instant shifted into the displayed zone. Plain arithmetic — the
- * expensive Intl offset lookup happens once a minute, not once a frame.
- */
-export const localNow = () => now() + zoneOffset
-
 export const getTimeZone = () => timeZone
 export const getMinuteIndex = () => minuteIndex
 export const getServerOffset = () => offsetMs
 
-function refreshZoneOffset(atMs: number) {
-  // Recomputed every tick so DST transitions are picked up within a second
-  // without any special-case handling.
-  zoneOffset = zoneOffsetMs(timeZone, atMs)
-}
-
 export function setTimeZone(tz: string) {
   if (tz === timeZone) return
   timeZone = tz
-  refreshZoneOffset(now())
+  // The instant has not moved, but everything derived from it has.
   emitResync()
-  tickListeners.forEach((l) => l())
 }
 
 export function setServerOffset(ms: number) {
   offsetMs = ms
-  refreshZoneOffset(now())
   emitResync()
 }
 
 function emitResync() {
-  minuteIndex = Math.floor(localNow() / 60000)
+  minuteIndex = Math.floor(now() / 60000)
   resyncListeners.forEach((l) => l())
   tickListeners.forEach((l) => l())
 }
 
 const scheduler = createBoundaryScheduler((wall) => {
-  const t = wall + offsetMs
-  refreshZoneOffset(t)
-  const m = Math.floor((t + zoneOffset) / 60000)
+  const m = Math.floor((wall + offsetMs) / 60000)
   if (m !== minuteIndex) minuteIndex = m
   // Notify unconditionally; React's snapshot equality decides whether the tree
   // actually re-renders.
@@ -99,13 +90,11 @@ let detachEnv: (() => void) | null = null
 
 export function startClock() {
   if (scheduler.running) return
-  refreshZoneOffset(now())
-  minuteIndex = Math.floor(localNow() / 60000)
+  minuteIndex = Math.floor(now() / 60000)
   scheduler.start()
 
   const resync = () => {
     if (document.visibilityState === 'hidden') return
-    refreshZoneOffset(now())
     scheduler.resync()
     emitResync()
   }

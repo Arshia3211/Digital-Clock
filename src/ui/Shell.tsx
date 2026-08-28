@@ -3,6 +3,7 @@ import { Controls } from './Controls'
 import { ClockFace } from './ClockFace'
 import { DateLine } from './DateLine'
 import { InfoPanel } from './InfoPanel'
+import { ZonePicker } from './ZonePicker'
 import { LiveRegion } from './LiveRegion'
 import { usePanelShift } from './usePanelShift'
 import styles from './Shell.module.css'
@@ -12,6 +13,8 @@ interface Props {
   status: string
   infoOpen: boolean
   setInfoOpen: (v: boolean) => void
+  zonesOpen: boolean
+  setZonesOpen: (v: boolean) => void
 }
 
 /**
@@ -21,7 +24,14 @@ interface Props {
  * No navbar and no footer — a clock does not need navigation, and adding one is
  * a reflex rather than a decision. Nothing scrolls.
  */
-export function Shell({ sceneReady, status, infoOpen, setInfoOpen }: Props) {
+export function Shell({
+  sceneReady,
+  status,
+  infoOpen,
+  setInfoOpen,
+  zonesOpen,
+  setZonesOpen,
+}: Props) {
   const shift = usePanelShift(infoOpen)
   const asSheet = shift === null
 
@@ -39,7 +49,7 @@ export function Shell({ sceneReady, status, infoOpen, setInfoOpen }: Props) {
 
       <main className={styles.stage}>
         <ClockFace dimmed={sceneReady} remeasureKey={shift ?? 'sheet'} />
-        <DateLine />
+        <DateLine onOpenZones={() => setZonesOpen(true)} />
       </main>
 
       <button
@@ -58,6 +68,7 @@ export function Shell({ sceneReady, status, infoOpen, setInfoOpen }: Props) {
       </button>
 
       <InfoPanel open={infoOpen} onClose={() => setInfoOpen(false)} asSheet={asSheet} />
+      <ZonePicker open={zonesOpen} onClose={() => setZonesOpen(false)} />
     </div>
   )
 }

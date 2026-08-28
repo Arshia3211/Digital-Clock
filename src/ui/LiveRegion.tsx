@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { formatTime, localNow, useDisplayTime } from '@/features/time'
+import { formatTime, now, useDisplayTime } from '@/features/time'
 import { useSettings } from '@/features/settings/settingsStore'
 
 /**
@@ -22,7 +22,7 @@ export function LiveRegion({ status }: { status: string }) {
   const clearTimer = useRef<number>()
 
   const announce = () => {
-    const fresh = formatTime(localNow(), { hour12, timeZone })
+    const fresh = formatTime(now(), { hour12, timeZone })
     // Re-set through empty so repeat activations are re-announced.
     setAnnounced('')
     window.clearTimeout(clearTimer.current)

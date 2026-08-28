@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useScrub } from '@/features/theme/scrubStore'
-import { hoursFrom, localNow, timeOfDayFrom } from '@/features/time'
+import { getTimeZone, now, zoneTimeOfDay } from '@/features/time'
 import styles from './InfoPanel.module.css'
 
 const PLAY_SECONDS = 20
@@ -25,7 +25,7 @@ export function DayScrubber() {
   const [playing, setPlaying] = useState(false)
   const raf = useRef<number>()
 
-  const live = scrub ?? hoursFrom(timeOfDayFrom(localNow()))
+  const live = scrub ?? zoneTimeOfDay(now(), getTimeZone())
 
   // Closing the panel while a preview is pinned must hand the sky back. Without
   // this the scene stays stuck at a time that is not the time, and the only way
@@ -34,7 +34,7 @@ export function DayScrubber() {
 
   useEffect(() => {
     if (!playing) return
-    const from = useScrub.getState().hours ?? hoursFrom(timeOfDayFrom(localNow()))
+    const from = useScrub.getState().hours ?? zoneTimeOfDay(now(), getTimeZone())
     const start = performance.now()
 
     const step = (now: number) => {

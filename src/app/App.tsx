@@ -21,9 +21,10 @@ export default function App() {
   const reduced = useReducedMotion()
   const [sceneReady, setSceneReady] = useState(false)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [zonesOpen, setZonesOpen] = useState(false)
   const [status, setStatus] = useState('')
 
-  const { hour12, theme, motion, setHour12, cycleTheme, setMotion } = useSettings()
+  const { hour12, theme, motion, timeZone, setHour12, cycleTheme, setMotion } = useSettings()
 
   // Announce user-initiated changes only. This is what a polite live region is
   // for — not for shouting the time every second.
@@ -40,18 +41,25 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.motion = motion === 'reduced' ? 'reduced' : ''
   }, [motion])
+  useEffect(() => {
+    setStatus(`Timezone: ${timeZone.split('/').pop()?.replace(/_/g, ' ') ?? timeZone}`)
+  }, [timeZone])
 
   const shortcuts = useMemo(
     () => ({
       f: () => setHour12(!hour12),
       t: cycleTheme,
       i: () => setInfoOpen((v) => !v),
+      z: () => setZonesOpen((v) => !v),
       m: () => {
         const next = motion === 'reduced' ? 'system' : 'reduced'
         setMotion(next)
         setStatus(next === 'reduced' ? 'Reduced motion on' : 'Reduced motion follows your system')
       },
-      escape: () => setInfoOpen(false),
+      escape: () => {
+        setInfoOpen(false)
+        setZonesOpen(false)
+      },
     }),
     [hour12, motion, setHour12, cycleTheme, setMotion],
   )
@@ -78,6 +86,8 @@ export default function App() {
         status={status}
         infoOpen={infoOpen}
         setInfoOpen={setInfoOpen}
+        zonesOpen={zonesOpen}
+        setZonesOpen={setZonesOpen}
       />
     </>
   )

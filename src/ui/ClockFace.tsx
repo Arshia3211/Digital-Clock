@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { useDisplayTime, localNow, subscribeTick } from '@/features/time'
-import { fastParts } from '@/features/time/fastParts'
+import { useDisplayTime, getTimeZone, now, subscribeTick } from '@/features/time'
+import { zoneParts } from '@/features/time/zoneParts'
 import { useLayout } from '@/features/theme/layoutStore'
 import { measureDigits, publishScrimGeometry } from './measureDigits'
 import styles from './ClockFace.module.css'
@@ -54,9 +54,9 @@ export function ClockFace({ dimmed, remeasureKey }: Props) {
    */
   useEffect(() => {
     const write = () => {
-      const p = fastParts(localNow(), false)
-      const a = String(Math.floor(p.seconds / 10))
-      const b = String(p.seconds % 10)
+      const p = zoneParts(now(), getTimeZone(), false)
+      const a = p.s0
+      const b = p.s1
       if (s0.current && s0.current.textContent !== a) s0.current.textContent = a
       if (s1.current && s1.current.textContent !== b) s1.current.textContent = b
     }

@@ -1,5 +1,5 @@
 import type { Palette } from '@/types'
-import { hoursFrom, localNow, subscribeResync, subscribeTick, timeOfDayFrom } from '@/features/time'
+import { getTimeZone, now, subscribeResync, subscribeTick, zoneTimeOfDay } from '@/features/time'
 import { useSettings } from '@/features/settings/settingsStore'
 import { mixOklch } from '@/lib/color'
 import { resolvePalette } from './resolvePalette'
@@ -24,7 +24,7 @@ const SETTLED = 0.0015
 const KICK = 0.02
 
 const hoursNow = () =>
-  useScrub.getState().hours ?? hoursFrom(timeOfDayFrom(localNow()))
+  useScrub.getState().hours ?? zoneTimeOfDay(now(), getTimeZone())
 
 const target = (): Palette => resolvePalette(hoursNow(), useSettings.getState().theme)
 

@@ -1,5 +1,6 @@
 export * from './timeStore'
-export * from './timeOfDay'
 export { formatTime, isoInZone, systemTimeZone, zoneOffsetMs } from './formatTime'
 export type { FormatOptions } from './formatTime'
 export { useDisplayTime } from './useDisplayTime'
+export { zoneParts, zoneTimeOfDay } from './zoneParts'
+export type { ZoneParts } from './zoneParts'

@@ -1,10 +1,69 @@
-.date {
+.line {
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
   font-size: var(--text-date);
   font-weight: 400;
   letter-spacing: 0.14em;
   color: var(--fg-muted);
   text-align: center;
-  white-space: nowrap;
   user-select: none;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--r-full);
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.zone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.2em 0.5em;
+  margin: -0.2em 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.zone:hover {
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.zone svg { opacity: 0.75; flex: none; }
+
+.zoneId {
+  font-variant-ligatures: none;
+  letter-spacing: 0.06em;
+}
+
+.zonePrefix {
+  opacity: 0.55;
+}
+
+/* Spelled out whenever the clock is not showing the viewer's own time, because
+   a clock silently displaying somewhere else is worse than no clock. */
+.delta {
+  font-size: 0.82em;
+  letter-spacing: 0.06em;
+  padding: 0.1em 0.45em;
+  border-radius: var(--r-full);
+  background: var(--selected);
+  color: var(--fg);
+}
+
+@media (pointer: coarse) {
+  .zone { padding: 0.5em 0.7em; }
 }

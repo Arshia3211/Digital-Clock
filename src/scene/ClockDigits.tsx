@@ -8,8 +8,8 @@ import {
   MeshStandardMaterial,
 } from 'three'
 import { getPalette } from '@/features/theme/paletteEngine'
-import { localNow, subscribeResync } from '@/features/time'
-import { fastParts, type FastParts } from '@/features/time/fastParts'
+import { getTimeZone, now, subscribeResync } from '@/features/time'
+import { zoneParts, type ZoneParts } from '@/features/time/zoneParts'
 import { useSettings } from '@/features/settings/settingsStore'
 import { oklchToLinearSrgbInto } from '@/lib/color'
 import { stepSpring, type SpringState } from '@/lib/damp'
@@ -26,10 +26,6 @@ const setLinear = (c: Color, o: readonly [number, number, number]) => {
  *  a spring landing sixty times a minute stops reading as a moment and starts
  *  reading as a flicker. */
 const ROLLING_IDS = ['h0', 'h1', 'm0', 'm1'] as const
-
-// Precomputed digit characters, so the frame loop never allocates a string.
-const SECOND_TENS = Array.from({ length: 60 }, (_, i) => String(Math.floor(i / 10)))
-const SECOND_ONES = Array.from({ length: 60 }, (_, i) => String(i % 10))
 
 const SPRING_STIFFNESS = 220
 const SPRING_DAMPING = 21 // just under critical: one small settle, no wobble
@@ -57,7 +53,7 @@ export function ClockDigits({ glyphs, placement, reducedMotion, tilt }: Props) {
   const meshes = useRef<Record<string, Mesh | null>>({})
   const shown = useRef<Record<string, string>>({})
   const springs = useRef<Record<string, SpringState>>({})
-  const parts = useRef<FastParts>(fastParts(localNow(), hour12))
+  const parts = useRef<ZoneParts>(zoneParts(now(), getTimeZone(), hour12))
   const lastHour = useRef(-1)
   const hourRecoil = useRef<SpringState>({ value: 0, velocity: 0 })
 
@@ -116,7 +112,7 @@ export function ClockDigits({ glyphs, placement, reducedMotion, tilt }: Props) {
     // reading as lit objects rather than painted ones.
     material.emissiveIntensity = p.digitEmissive
 
-    const t = fastParts(localNow(), hour12, parts.current)
+    const t = zoneParts(now(), getTimeZone(), hour12, parts.current)
 
     if (lastHour.current !== t.hour24) {
       if (lastHour.current !== -1 && !reducedMotion) hourRecoil.current.velocity = -1.6
@@ -130,8 +126,8 @@ export function ClockDigits({ glyphs, placement, reducedMotion, tilt }: Props) {
       m1: t.m1,
       colon: ':',
       colon2: ':',
-      s0: SECOND_TENS[t.seconds],
-      s1: SECOND_ONES[t.seconds],
+      s0: t.s0,
+      s1: t.s1,
       period: t.isPm ? 'PM' : 'AM',
     }
 

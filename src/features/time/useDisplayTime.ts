@@ -15,10 +15,10 @@ import { getMinuteIndex, now, subscribeTick } from './timeStore'
  * Everything sub-minute (the seconds track, the colon pulse, the sky) is
  * animated in the render loop against refs and uniforms, never through here.
  *
- * Note `now()` and not `localNow()`: `formatTime` applies the timezone itself
- * through Intl, so handing it an already-shifted timestamp would apply the
- * offset twice. `localNow()` is for the scene's arithmetic path only, which
- * does no Intl work of its own.
+ * The timestamp handed to `formatTime` is always plain UTC: the zone is applied
+ * by Intl, inside the formatter. Nothing in this project shifts a timestamp into
+ * a zone and then formats it — doing both was a real bug once, and the clock ran
+ * five hours fast until a screenshot caught it.
  */
 export function useDisplayTime() {
   const minute = useSyncExternalStore(subscribeTick, getMinuteIndex, getMinuteIndex)

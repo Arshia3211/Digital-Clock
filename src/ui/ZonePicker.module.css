@@ -1,0 +1,293 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: scrim-in var(--dur-fast) var(--ease-out);
+}
+
+@keyframes scrim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.panel {
+  position: fixed;
+  z-index: 70;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(470px, calc(100vw - var(--inset) * 2));
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  animation: zone-in var(--dur-panel) var(--ease-out);
+}
+
+@keyframes zone-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 10px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* On a phone it becomes a near-full-height sheet: a 440px card floating in the
+   middle of a 390px viewport leaves no room to actually read the list. */
+@media (max-width: 520px), (max-height: 560px) {
+  .panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    right: 0;
+    transform: none;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+    padding-bottom: calc(var(--s-4) + env(safe-area-inset-bottom, 0px));
+    animation-name: sheet-up;
+  }
+  @keyframes sheet-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.regionHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: var(--s-3) 0 2px;
+  padding: var(--s-1) var(--s-2);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  background: var(--surface-strong);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 5px;
+}
+
+.regionHeader:first-child { margin-top: 0; }
+
+.search {
+  width: 100%;
+  height: 42px;
+  padding: 0 var(--s-4);
+  border-radius: var(--r-full);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--text-base);
+}
+
+.search::placeholder {
+  color: var(--fg-muted);
+  opacity: 0.7;
+}
+
+.list {
+  max-height: min(46vh, 340px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* Room for the scrollbar so rows do not shift when it appears. */
+  scrollbar-gutter: stable;
+}
+
+.row {
+  /*
+   * Browser-native virtualisation. With every zone in the list there are 419
+   * rows in the DOM, and laying out and painting all of them on open cost about
+   * half a second. content-visibility lets the browser skip that work entirely
+   * for rows that are off screen, and contain-intrinsic-size gives it a size to
+   * assume for them so the scrollbar does not jump around as they materialise.
+   *
+   * One declaration instead of a virtualised list component — and unlike one,
+   * it does not break find-in-page, keyboard focus or scrollIntoView.
+   */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 50px;
+
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-2) var(--s-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row[data-active='true'] {
+  background: var(--selected);
+  box-shadow: inset 0 0 0 1px var(--selected-edge);
+}
+
+.row[aria-selected='true'] .idTail::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 7px;
+  vertical-align: 0.18em;
+  border-radius: var(--r-full);
+  background: var(--accent);
+}
+
+/*
+ * The real palette for that zone's current hour, drawn from the same ramp the
+ * scene uses. It is what makes the list scannable: you can find somewhere it is
+ * currently evening without reading a single number.
+ */
+.sky {
+  flex: none;
+  width: 38px;
+  height: 26px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+  /* Rows stay aligned whether or not a friendly caption is present. */
+  min-height: 34px;
+}
+
+/*
+ * The identifier, laid out so the PREFIX absorbs any truncation.
+ *
+ * The obvious approach — ellipsis on the whole string — cuts the end, which is
+ * the one part nobody can do without: "America/Argentina/Rio_Gall…". Making the
+ * prefix the flexible half means a long identifier degrades to
+ * "America/Argent…/Rio Gallegos" and the place always survives.
+ */
+.id {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  font-size: var(--text-base);
+  letter-spacing: 0.005em;
+}
+
+.idPrefix {
+  font-weight: 400;
+  opacity: 0.5;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.idTail {
+  flex: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.caption {
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.times {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex: none;
+}
+
+.clock {
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.ampm {
+  font-size: 0.7em;
+  font-weight: 500;
+  margin-left: 0.3em;
+  opacity: 0.75;
+}
+
+.delta {
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.empty {
+  margin: var(--s-6) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+}
+
+.more {
+  margin: var(--s-2) 0 0;
+  padding: var(--s-2);
+  text-align: center;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+}
+
+.hint {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+}
+
+.keys {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.hint kbd {
+  font: inherit;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface-strong);
+  border: 1px solid var(--hairline);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .scrim { animation: none; }
+}

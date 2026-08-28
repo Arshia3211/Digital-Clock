@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { ThemeMode } from '@/types'
 import { setTimeZone as setClockZone, systemTimeZone } from '@/features/time'
+import { readUrlState, writeUrlState } from './urlState'
 
 const KEY = 'tick.settings.v1'
 
@@ -46,12 +47,14 @@ interface SettingsState extends Persisted {
   setTimeZone: (tz: string) => void
 }
 
-const initial = load()
+// The URL wins over storage: a shared link should show what it says.
+const initial = { ...load(), ...readUrlState() }
 
 export const useSettings = create<SettingsState>((set, get) => {
   const persist = () => {
     const { hour12, theme, motion, timeZone } = get()
     save({ hour12, theme, motion, timeZone })
+    writeUrlState({ hour12, timeZone }, systemTimeZone())
   }
 
   return {
@@ -87,5 +90,5 @@ export const useSettings = create<SettingsState>((set, get) => {
 })
 
 // The clock engine owns the zone for its per-frame offset arithmetic; keep it
-// in step with whatever was restored from storage.
+// in step with whatever was restored from storage or read off the URL.
 setClockZone(useSettings.getState().timeZone)
